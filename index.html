@@ -58,7 +58,7 @@
             margin-bottom: .5em;
         }
 
-        .s-cal-month-dates-wrapper {
+        .s-cal-month {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             grid-template-rows: repeat(6, 1fr);
@@ -132,7 +132,7 @@
             background-color: rgba(190, 190, 190, 0.282);
         }
 
-        .s-cal-month-dates-viewport{
+        .s-cal-month-viewport{
             scroll-snap-type: x mandatory;
             display: flex;
             flex-direction: row;
@@ -142,15 +142,15 @@
         }
         /* hide scrollbar */
 
-        .s-cal-month-dates-viewport {
+        .s-cal-month-viewport {
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
-        .s-cal-month-dates-viewport::-webkit-scrollbar {
+        .s-cal-month-viewport::-webkit-scrollbar {
             display: none;
         }
 
-        .s-cal-month-dates-wrapper {
+        .s-cal-month {
             scroll-snap-align: start;
         }
     </style>
@@ -167,61 +167,70 @@
         function createMonthView(year, month){
             // Accepts a year (e.g. 2023) and month 0-11 (zero based)
 
+            // Create a div container to hold all the dates for the target month
             const monthView = document.createElement('div');
-            monthView.classList.add('s-cal-month-dates-wrapper');
+            monthView.classList.add('s-cal-month');
 
+            // Get the weekday that the first day of the target month falls on
             const firstDayIndex = new Date(year, month, 1).getDay();
             
+            // Get the last date of the target month
             const lastDate = new Date(year, month + 1, 0).getDate();
 
+            // Get the last date of the month before the target month
             const prevLastDate = new Date(year, month, 0).getDate();
 
+            // Create a collection of the dates we should show from the previous month
             const daysPadStart = firstDayIndex
             const daysBefore = [];
             for (let i = 0; i < daysPadStart; i++) {
                 daysBefore.push({
                     date: new Date(year, month, 0 - i),
-                    day: prevLastDate - i
+                    day: prevLastDate - i,
+                    type: 'prev'
                 });
             }
             daysBefore.reverse();
 
-
+            // Create a collection of the dates we should show for the target month
             const days = [];
             for (let i = 1; i <= lastDate; i++) {
                 days.push({
                     date: new Date(year, month, i),
-                    day: i
+                    day: i,
+                    type: 'primary'
                 });
             }
 
-
+            // Create a collection of the dates we should show for the following month
             const daysPadEnd = 42 - daysBefore.length - days.length;
             const daysAfter = [];
             for (let i = 1; i <= daysPadEnd; i++) {
                 daysAfter.push({
                     date: new Date(year, month + 1, i),
-                    day: i
+                    day: i,
+                    type: 'next'
                 });
             }
 
+            // Combine the all the dates into a collection of all 42 dates that will be included in this view
             const alldays = [...daysBefore, ...days, ...daysAfter];
 
+            // Initialize an empty HTML string that we will add the individual dates to
             var innerHtml = '';
 
+            // Add the HTML for each of the dates we want to show in this view
             alldays.forEach(function(dayIndex) {
 
-                date = dayIndex.date;
-                day = dayIndex.day;
-
+                // Construct the date object/button
                 innerHtml += `
-                    <div class="s-cal-date" data-date-value="${date}">
+                    <div class="s-cal-date s-cal-date-${dayIndex.type}" data-date-value="${dayIndex.date}">
                         <div class="s-cal-date-inner">
                             <div class="s-cal-date-top">
                             </div>
                             <div class="s-cal-date-middle">
                                 <div class="s-cal-date-label">
-                                    ${day}
+                                    ${dayIndex.day}
                                 </div>
                             </div>
                             <div class="s-cal-date-bottom">
@@ -235,6 +244,7 @@
 
             });
 
+            // Return the complete month object
             return innerHtml;
         }
 
@@ -254,12 +264,15 @@
 
             dateSelected.setHours(0, 0, 0, 0);
 
-            console.log(dateSelected.toLocaleDateString());
-
             // Create an s-cal-popup
 
             const sCalPopup = document.createElement('div');
             sCalPopup.classList.add('s-cal-popup');
+            // Assign a unique Id to the sCalPopup using 's-cal-popup' + a uuid
+            const uuid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            sCalPopup.id = 's-cal-popup-' + uuid;
+
+
             document.body.appendChild(sCalPopup);
 
             // Create the navigation for the s-cal-popup
@@ -323,27 +336,27 @@
                     <div class="s-cal-weekday">Sat</div>
                 </div>
 
-                <div class="s-cal-month-dates-viewport">
+                <div class="s-cal-month-viewport">
                 </div>
             `;
 
 
-            const sCalMonthDatesViewport = sCalPopup.querySelector('.s-cal-month-dates-viewport');
+            const sCalMonthDatesViewport = sCalPopup.querySelector('.s-cal-month-viewport');
 
             const monthWrapper = document.createElement('div');
-            monthWrapper.classList.add('s-cal-month-dates-wrapper');
+            monthWrapper.classList.add('s-cal-month');
             monthWrapper.innerHTML = createMonthView(dateSelected.getFullYear(), dateSelected.getMonth());
 
             sCalMonthDatesViewport.appendChild(monthWrapper);
 
             const month2Wrapper = document.createElement('div');
-            month2Wrapper.classList.add('s-cal-month-dates-wrapper');
+            month2Wrapper.classList.add('s-cal-month');
             month2Wrapper.innerHTML = createMonthView(dateSelected.getFullYear(), dateSelected.getMonth() + 1);
 
             sCalMonthDatesViewport.appendChild(month2Wrapper);
 
             const month3Wrapper = document.createElement('div');
-            month3Wrapper.classList.add('s-cal-month-dates-wrapper');
+            month3Wrapper.classList.add('s-cal-month');
             month3Wrapper.innerHTML = createMonthView(dateSelected.getFullYear(), dateSelected.getMonth() + 2);
 
             sCalMonthDatesViewport.appendChild(month3Wrapper);
