@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calendar Widget</title>
+    <link rel="stylesheet" type="text/css" href="s-cal.css">
+    <script type="text/javascript" src="s-cal.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #181818;
+        }
+
+        .s-cal-input {
+            background-color: #252525;
+            color: #fff;
+            border: 1px solid #FFFFFF22;
+            padding: .5em;
+            font-size: 1em;
+            max-width: min-content;
+            margin: 0 auto;
+            border-radius: .5em;
+            cursor: pointer;
+        }
+        
+        .s-cal-popup {
+            font-size: 1rem;
+            position: absolute;
+            top: 32px;
+            left: 32px;
+            padding: 1em;
+            background-color: #252525;
+            color: #fff;
+            border: 1px solid #FFFFFF22;
+            border-radius: 1em;
+            width: 19em;
+        }
+
+        .s-cal-nav-wrapper {
+            display: grid;
+            grid-template-columns: .5fr 2.5fr .5fr 1fr .5fr 1.5fr .5fr;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .s-cal-weekdays-wrapper {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            text-align: center;
+            vertical-align: middle;
+            gap: .5em;
+            margin-top: 1.5em;
+            margin-bottom: .5em;
+        }
+
+        .s-cal-month-dates-wrapper {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            text-align: center;
+            vertical-align: middle;
+            gap: .25em;
+            min-width: 100%;
+        }
+
+        .s-cal-date {
+            aspect-ratio: 1;
+            text-align: center;
+            vertical-align: middle;
+            border-radius: 999px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color .1s;
+        }
+
+        .s-cal-date-prev .s-cal-date-label, .s-cal-date-next .s-cal-date-label {
+            opacity: .2;
+        }
+
+        .s-cal-select {
+            appearance: none;
+            outline: none;
+            border: none;
+            background-color: transparent;
+            color: currentColor;
+            font-size: 1em;
+            text-align: center;
+            text-align-last: center;
+            -moz-text-align-last: center;
+        }
+
+        .s-cal-date-inner {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: .0625em;
+            margin: .25em;
+            aspect-ratio: 1;
+        }
+
+        .s-cal-date-top{
+            height: 0.25em;
+        }
+
+        .s-cal-date-bottom {
+            display: flex;
+            flex-direction: row;
+            gap: .125em;
+        }
+
+        .s-cal-dot {
+            height: 0.25em;
+            width: 0.25em;
+            border-radius: 999px;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .s-cal-date-prev .s-cal-dot, .s-cal-date-next .s-cal-dot {
+            background-color: rgba(255, 255, 255, 0.0);
+        }
+
+        .s-cal-date:hover{
+            background-color: rgba(190, 190, 190, 0.282);
+        }
+
+        .s-cal-month-dates-viewport{
+            scroll-snap-type: x mandatory;
+            display: flex;
+            flex-direction: row;
+            overflow: scroll;
+            width: 100%;
+            gap: 50%;
+        }
+        /* hide scrollbar */
+
+        .s-cal-month-dates-viewport {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .s-cal-month-dates-viewport::-webkit-scrollbar {
+            display: none;
+        }
+
+        .s-cal-month-dates-wrapper {
+            scroll-snap-align: start;
+        }
+    </style>
+</head>
+<body>
+    <div class="s-cal-input" data-date-value="2024-08-11">
+        08/11/24
+    </div>
+</body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        function createMonthView(year, month){
+            // Accepts a year (e.g. 2023) and month 0-11 (zero based)
+
+            const monthView = document.createElement('div');
+            monthView.classList.add('s-cal-month-dates-wrapper');
+
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            
+            const lastDate = new Date(year, month + 1, 0).getDate();
+
+            const prevLastDate = new Date(year, month, 0).getDate();
+
+            const daysPadStart = firstDayIndex
+            const daysBefore = [];
+            for (let i = 0; i < daysPadStart; i++) {
+                daysBefore.push({
+                    date: new Date(year, month, 0 - i),
+                    day: prevLastDate - i
+                });
+            }
+            daysBefore.reverse();
+
+
+            const days = [];
+            for (let i = 1; i <= lastDate; i++) {
+                days.push({
+                    date: new Date(year, month, i),
+                    day: i
+                });
+            }
+
+
+            const daysPadEnd = 42 - daysBefore.length - days.length;
+            const daysAfter = [];
+            for (let i = 1; i <= daysPadEnd; i++) {
+                daysAfter.push({
+                    date: new Date(year, month + 1, i),
+                    day: i
+                });
+            }
+
+            const alldays = [...daysBefore, ...days, ...daysAfter];
+
+            var innerHtml = '';
+
+            alldays.forEach(function(dayIndex) {
+
+                date = dayIndex.date;
+                day = dayIndex.day;
+
+                innerHtml += `
+                    <div class="s-cal-date" data-date-value="${date}">
+                        <div class="s-cal-date-inner">
+                            <div class="s-cal-date-top">
+                            </div>
+                            <div class="s-cal-date-middle">
+                                <div class="s-cal-date-label">
+                                    ${day}
+                                </div>
+                            </div>
+                            <div class="s-cal-date-bottom">
+                                <div class="s-cal-dot hail"></div>
+                                <div class="s-cal-dot wind"></div>
+                                <div class="s-cal-dot torn"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+            });
+
+            return innerHtml;
+        }
+
+        createMonthView(2023, 11); // August 2023
+
+
+        const dateInputs = document.querySelectorAll('.s-cal-input');
+        const dateInputsArray = Array.from(dateInputs);
+
+        dateInputsArray.forEach(function(dateInput) {
+
+            // If the date input has a date, set dateInput to that value, otherwise set to today's date.
+
+            var dateSelected = dateInput.value ? new Date(dateInput.value) : new Date();
+
+            // Set the hours, minutes and seconds to 0
+
+            dateSelected.setHours(0, 0, 0, 0);
+
+            console.log(dateSelected.toLocaleDateString());
+
+            // Create an s-cal-popup
+
+            const sCalPopup = document.createElement('div');
+            sCalPopup.classList.add('s-cal-popup');
+            document.body.appendChild(sCalPopup);
+
+            // Create the navigation for the s-cal-popup
+
+            sCalPopup.innerHTML = `
+                <div class="s-cal-nav-wrapper">
+                    <div class="s-cal-nav-button s-cal-prev s-cal-month-prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 -960 960 960" fill="currentColor">
+                            <path d="M400-80 0-480l400-400 71 71-329 329 329 329-71 71Z"/>
+                        </svg>
+                    </div>
+                    <select class="s-cal-nav-button s-cal-select s-cal-month-index">
+                        <option value="0">January</option>
+                        <option value="1">February</option>
+                        <option value="2">March</option>
+                        <option value="3">April</option>
+                        <option value="4">May</option>
+                        <option value="5">June</option>
+                        <option value="6">July</option>
+                        <option value="7">August</option>
+                        <option value="8">September</option>
+                        <option value="9">October</option>
+                        <option value="10">November</option>
+                        <option value="11">December</option>
+                    </select>
+
+                    <div class="s-cal-nav-button s-cal-next s-cal-month-next">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 -960 960 960" fill="currentColor">
+                            <path d="m321-80-71-71 329-329-329-329 71-71 400 400L321-80Z"/>
+                        </svg>
+                    </div>
+
+                    <div class="s-cal-nav-spacer"></div>
+
+                    <div class="s-cal-nav-button s-cal-prev s-cal-year-prev">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 -960 960 960" fill="currentColor">
+                            <path d="M400-80 0-480l400-400 71 71-329 329 329 329-71 71Z"/>
+                        </svg>
+                    </div>
+                    <select class="s-cal-nav-button s-cal-select s-cal-year-index">
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                    </select>
+                    <div class="s-cal-nav-button s-cal-next s-cal-year-next">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 -960 960 960" fill="currentColor">
+                            <path d="m321-80-71-71 329-329-329-329 71-71 400 400L321-80Z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="s-cal-weekdays-wrapper">
+                    <div class="s-cal-weekday">Sun</div>
+                    <div class="s-cal-weekday">Mon</div>
+                    <div class="s-cal-weekday">Tue</div>
+                    <div class="s-cal-weekday">Wed</div>
+                    <div class="s-cal-weekday">Thu</div>
+                    <div class="s-cal-weekday">Fri</div>
+                    <div class="s-cal-weekday">Sat</div>
+                </div>
+
+                <div class="s-cal-month-dates-viewport">
+                </div>
+            `;
+
+
+            const sCalMonthDatesViewport = sCalPopup.querySelector('.s-cal-month-dates-viewport');
+
+            const monthWrapper = document.createElement('div');
+            monthWrapper.classList.add('s-cal-month-dates-wrapper');
+            monthWrapper.innerHTML = createMonthView(dateSelected.getFullYear(), dateSelected.getMonth());
+
+            sCalMonthDatesViewport.appendChild(monthWrapper);
+
+            const month2Wrapper = document.createElement('div');
+            month2Wrapper.classList.add('s-cal-month-dates-wrapper');
+            month2Wrapper.innerHTML = createMonthView(dateSelected.getFullYear(), dateSelected.getMonth() + 1);
+
+            sCalMonthDatesViewport.appendChild(month2Wrapper);
+
+            const month3Wrapper = document.createElement('div');
+            month3Wrapper.classList.add('s-cal-month-dates-wrapper');
+            month3Wrapper.innerHTML = createMonthView(dateSelected.getFullYear(), dateSelected.getMonth() + 2);
+
+            sCalMonthDatesViewport.appendChild(month3Wrapper);
+
+
+            dateInput.addEventListener('click', function() {
+            });
+        });
+    });
+</script>
+</html>
