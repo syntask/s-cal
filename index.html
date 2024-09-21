@@ -260,7 +260,12 @@
 
         }
 
+
+
         dateInputs.forEach(function(dateInput) {
+
+            var viewportYear = 2020
+            var viewportMonth = 0
 
             // If the date input has a date, set dateInput to that value, otherwise set to today's date.
 
@@ -347,18 +352,24 @@
             `;
 
             // Event listener for the month selector
-            sCalPopup.querySelector('.s-cal-month-index').addEventListener('change', function() {
-                console.log('Month changed ' + this.value);
-                // Scroll to the target month
-                // Scroll to the element with the class 's-cal-month-2020-' + month
-                const targetMonth = sCalPopup.querySelector('.s-cal-month-2020-' + this.value);
-                targetMonth.scrollIntoView({behavior: 'smooth'});
+            const monthSelector = sCalPopup.querySelector('.s-cal-month-index');
+            monthSelector.addEventListener('change', function() {
+                viewportMonth = this.value;
+                scrollMonthIntoView('instant');
             });
 
             // Event listener for the year selector
-            sCalPopup.querySelector('.s-cal-year-index').addEventListener('change', function() {
-                console.log('Year changed ' + this.value);
+            const yearSelector = sCalPopup.querySelector('.s-cal-year-index')
+            yearSelector.addEventListener('change', function() {
+                viewportYear = this.value;
+                scrollMonthIntoView('instant');
             });
+
+            function scrollMonthIntoView(behavior){
+                const target = sCalPopup.querySelector('.s-cal-month-' + viewportYear + '-' + viewportMonth);
+                target.scrollIntoView({behavior: behavior});
+                // Prevent default on the scroll event
+            }
 
 
             const sCalMonthDatesViewport = sCalPopup.querySelector('.s-cal-month-viewport');
@@ -391,9 +402,11 @@
                 monthInView.forEach(function(month) {
                     // If the month is visible, set the month selector to that month
                     if (month.getBoundingClientRect().left >= 0 && month.getBoundingClientRect().right <= window.innerWidth) {
-                        const monthIndex = month.classList[1].split('-')[4];
-                        const yearIndex = month.classList[1].split('-')[3];
-                        console.log(yearIndex + ' ' + monthIndex)
+                        viewportMonth = parseInt(month.classList[1].split('-')[4]);
+                        viewportYear = parseInt(month.classList[1].split('-')[3]);
+                        console.log(viewportMonth + '/' + viewportYear)
+                        monthSelector.value = viewportMonth;
+                        yearSelector.value = viewportYear;
                     }
                 });
                 
