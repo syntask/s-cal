@@ -358,10 +358,38 @@
                 scrollMonthIntoView('instant');
             });
 
+            const monthPrev = sCalPopup.querySelector('.s-cal-month-prev');
+            monthPrev.addEventListener('click', function() {
+                viewportMonth = viewportMonth - 1 < 0 ? 11 : viewportMonth - 1;
+                monthSelector.value = viewportMonth;
+                scrollMonthIntoView('smooth');
+            });
+
+            const monthNext = sCalPopup.querySelector('.s-cal-month-next');
+            monthNext.addEventListener('click', function() {
+                viewportMonth = viewportMonth + 1 > 11 ? 0 : viewportMonth + 1;
+                monthSelector.value = viewportMonth;
+                scrollMonthIntoView('smooth');
+            });
+
             // Event listener for the year selector
             const yearSelector = sCalPopup.querySelector('.s-cal-year-index')
             yearSelector.addEventListener('change', function() {
                 viewportYear = this.value;
+                scrollMonthIntoView('instant');
+            });
+
+            const yearPrev = sCalPopup.querySelector('.s-cal-year-prev');
+            yearPrev.addEventListener('click', function() {
+                viewportYear = viewportYear - 1;
+                yearSelector.value = viewportYear;
+                scrollMonthIntoView('instant');
+            });
+
+            const yearNext = sCalPopup.querySelector('.s-cal-year-next');
+            yearNext.addEventListener('click', function() {
+                viewportYear = viewportYear + 1;
+                yearSelector.value = viewportYear;
                 scrollMonthIntoView('instant');
             });
 
