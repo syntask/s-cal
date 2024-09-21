@@ -170,6 +170,8 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
 
+        const dateInputs = document.querySelectorAll('.s-cal-input');
+
         function createMonthView(parent, year, month){
             
             // Accepts a year (e.g. 2023) and month 0-11 (zero based)
@@ -258,11 +260,7 @@
 
         }
 
-
-        const dateInputs = document.querySelectorAll('.s-cal-input');
-        const dateInputsArray = Array.from(dateInputs);
-
-        dateInputsArray.forEach(function(dateInput) {
+        dateInputs.forEach(function(dateInput) {
 
             // If the date input has a date, set dateInput to that value, otherwise set to today's date.
 
