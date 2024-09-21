@@ -39,6 +39,9 @@
             border: 1px solid #FFFFFF22;
             border-radius: 1em;
             width: 19em;
+            cursor: default;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .s-cal-nav-wrapper {
@@ -77,12 +80,15 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+        }
+
+        .s-cal-date.s-cal-date-primary{
             cursor: pointer;
             transition: background-color .1s;
         }
 
         .s-cal-date-prev .s-cal-date-label, .s-cal-date-next .s-cal-date-label {
-            opacity: .2;
+            opacity: .1;
         }
 
         .s-cal-select {
@@ -128,7 +134,7 @@
             background-color: rgba(255, 255, 255, 0.0);
         }
 
-        .s-cal-date:hover{
+        .s-cal-date.s-cal-date-primary:hover{
             background-color: rgba(190, 190, 190, 0.282);
         }
 
@@ -164,12 +170,13 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
 
-        function createMonthView(year, month){
+        function createMonthView(parent, year, month){
+            
             // Accepts a year (e.g. 2023) and month 0-11 (zero based)
-
-            // Create a div container to hold all the dates for the target month
+            
             const monthView = document.createElement('div');
             monthView.classList.add('s-cal-month');
+            monthView.classList.add('s-cal-month-' + year + '-' + month)
 
             // Get the weekday that the first day of the target month falls on
             const firstDayIndex = new Date(year, month, 1).getDay();
@@ -244,11 +251,12 @@
 
             });
 
-            // Return the complete month object
-            return innerHtml;
-        }
+            monthView.innerHTML = innerHtml;
 
-        createMonthView(2023, 11); // August 2023
+            // Append the monthView element to the parent element
+            parent.appendChild(monthView);
+
+        }
 
 
         const dateInputs = document.querySelectorAll('.s-cal-input');
@@ -340,26 +348,59 @@
                 </div>
             `;
 
+            // Event listener for the month selector
+            sCalPopup.querySelector('.s-cal-month-index').addEventListener('change', function() {
+                console.log('Month changed ' + this.value);
+                // Scroll to the target month
+                // Scroll to the element with the class 's-cal-month-2020-' + month
+                const targetMonth = sCalPopup.querySelector('.s-cal-month-2020-' + this.value);
+                targetMonth.scrollIntoView({behavior: 'smooth'});
+            });
+
+            // Event listener for the year selector
+            sCalPopup.querySelector('.s-cal-year-index').addEventListener('change', function() {
+                console.log('Year changed ' + this.value);
+            });
+
 
             const sCalMonthDatesViewport = sCalPopup.querySelector('.s-cal-month-viewport');
 
-            const monthWrapper = document.createElement('div');
-            monthWrapper.classList.add('s-cal-month');
-            monthWrapper.innerHTML = createMonthView(dateSelected.getFullYear(), dateSelected.getMonth());
+            
+            // For testing purposes right now, createMonthView() for january 2020 - december 2024
+            for (let i = 0; i < 12; i++) {
+                createMonthView(sCalMonthDatesViewport, 2020, i);
+            }
+            for (let i = 0; i < 12; i++) {
+                createMonthView(sCalMonthDatesViewport, 2021, i);
+            }
+            for (let i = 0; i < 12; i++) {
+                createMonthView(sCalMonthDatesViewport, 2022, i);
+            }
+            for (let i = 0; i < 12; i++) {
+                createMonthView(sCalMonthDatesViewport, 2023, i);
+            }
+            for (let i = 0; i < 12; i++) {
+                createMonthView(sCalMonthDatesViewport, 2024, i);
+            }
 
-            sCalMonthDatesViewport.appendChild(monthWrapper);
 
-            const month2Wrapper = document.createElement('div');
-            month2Wrapper.classList.add('s-cal-month');
-            month2Wrapper.innerHTML = createMonthView(dateSelected.getFullYear(), dateSelected.getMonth() + 1);
 
-            sCalMonthDatesViewport.appendChild(month2Wrapper);
+            sCalMonthDatesViewport.addEventListener('scroll', function() {
+                // Get all the possible months
+                const monthInView = sCalMonthDatesViewport.querySelectorAll('.s-cal-month');
+                
+                // Programatically check each month to see if it is currently visible in the viewport
+                monthInView.forEach(function(month) {
+                    // If the month is visible, set the month selector to that month
+                    if (month.getBoundingClientRect().left >= 0 && month.getBoundingClientRect().right <= window.innerWidth) {
+                        const monthIndex = month.classList[1].split('-')[4];
+                        const yearIndex = month.classList[1].split('-')[3];
+                        console.log(yearIndex + ' ' + monthIndex)
+                    }
+                });
+                
+            });
 
-            const month3Wrapper = document.createElement('div');
-            month3Wrapper.classList.add('s-cal-month');
-            month3Wrapper.innerHTML = createMonthView(dateSelected.getFullYear(), dateSelected.getMonth() + 2);
-
-            sCalMonthDatesViewport.appendChild(month3Wrapper);
 
 
             dateInput.addEventListener('click', function() {
