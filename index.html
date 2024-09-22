@@ -163,7 +163,7 @@
         .s-cal-month-prev, .s-cal-month-index, .s-cal-month-next, .s-cal-year-prev, .s-cal-year-index, .s-cal-year-next {
             cursor: pointer;
         }
-        
+
     </style>
 </head>
 <body>
@@ -291,7 +291,7 @@
 
             document.body.appendChild(sCalPopup);
 
-            // Create the navigation for the s-cal-popup
+            // Construct the navigation for the s-cal-popup
 
             sCalPopup.innerHTML = `
                 <div class="s-cal-nav-wrapper">
@@ -356,7 +356,6 @@
                 </div>
             `;
 
-            // Event listener for the month selector
             const monthSelector = sCalPopup.querySelector('.s-cal-month-index');
             monthSelector.addEventListener('change', function() {
                 viewportMonth = this.value;
@@ -377,7 +376,6 @@
                 scrollMonthIntoView('smooth');
             });
 
-            // Event listener for the year selector
             const yearSelector = sCalPopup.querySelector('.s-cal-year-index')
             yearSelector.addEventListener('change', function() {
                 viewportYear = this.value;
@@ -401,7 +399,7 @@
             function scrollMonthIntoView(behavior){
                 const target = sCalPopup.querySelector('.s-cal-month-' + viewportYear + '-' + viewportMonth);
                 target.scrollIntoView({behavior: behavior});
-                // Prevent default on the scroll event
+                // @TODO: Prevent default on the scroll event?
             }
 
 
@@ -409,6 +407,8 @@
 
             
             // For testing purposes right now, createMonthView() for january 2020 - december 2024
+            // @TODO: createMonthView() for a range of dates specified in a date range, which should be specified when the script initializes
+            // @TODO: Additionally, we will need to find a way to conditionally deactivate dates which are displayed for a month view but which fall outside the allowabel date range (for example, preventing a user from selecting a date that is in the future.)
             for (let i = 0; i < 12; i++) {
                 createMonthView(sCalMonthDatesViewport, 2020, i);
             }
@@ -426,18 +426,19 @@
             }
 
 
-
+            // @TODO: Supress this scroll event function when the scroll has been triggered by the scrollMonthIntoView() function
             sCalMonthDatesViewport.addEventListener('scroll', function() {
                 // Get all the possible months
                 const monthInView = sCalMonthDatesViewport.querySelectorAll('.s-cal-month');
                 
                 // Programatically check each month to see if it is currently visible in the viewport
                 monthInView.forEach(function(month) {
-                    // If the month is visible, set the month selector to that month
+
+                    // @TODO: This is a very basic check, we should check if the month is at least 50% visible
                     if (month.getBoundingClientRect().left >= 0 && month.getBoundingClientRect().right <= window.innerWidth) {
+                        // If the month is visible, set the month selector to that month
                         viewportMonth = parseInt(month.classList[1].split('-')[4]);
                         viewportYear = parseInt(month.classList[1].split('-')[3]);
-                        console.log(viewportMonth + '/' + viewportYear)
                         monthSelector.value = viewportMonth;
                         yearSelector.value = viewportYear;
                     }
@@ -448,6 +449,7 @@
 
 
             dateInput.addEventListener('click', function() {
+                // @TODO: Open the popup when the date input element is clicked
             });
         });
     });
