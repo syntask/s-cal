@@ -361,7 +361,7 @@
             const monthSelector = sCalPopup.querySelector('.s-cal-month-index');
             monthSelector.addEventListener('change', function() {
                 viewportMonth = this.value;
-                scrollMonthIntoView('smooth');
+                scrollMonthIntoView();
             });
 
             const monthPrev = sCalPopup.querySelector('.s-cal-month-prev');
@@ -375,7 +375,7 @@
                     viewportMonth -= 1;
                     monthSelector.value = viewportMonth;
                 }
-                scrollMonthIntoView('smooth');
+                scrollMonthIntoView();
             });
 
             const monthNext = sCalPopup.querySelector('.s-cal-month-next');
@@ -389,33 +389,33 @@
                     viewportMonth += 1;
                     monthSelector.value = viewportMonth;
                 }
-                scrollMonthIntoView('smooth');
+                scrollMonthIntoView();
             });
 
             const yearSelector = sCalPopup.querySelector('.s-cal-year-index')
             yearSelector.addEventListener('change', function() {
                 viewportYear = this.value;
-                scrollMonthIntoView('instant');
+                scrollMonthIntoView();
             });
 
             const yearPrev = sCalPopup.querySelector('.s-cal-year-prev');
             yearPrev.addEventListener('click', function() {
                 viewportYear = viewportYear - 1;
                 yearSelector.value = viewportYear;
-                scrollMonthIntoView('instant');
+                scrollMonthIntoView();
             });
 
             const yearNext = sCalPopup.querySelector('.s-cal-year-next');
             yearNext.addEventListener('click', function() {
                 viewportYear = viewportYear + 1;
                 yearSelector.value = viewportYear;
-                scrollMonthIntoView('instant');
+                scrollMonthIntoView();
             });
 
-            
-            function scrollMonthIntoView(behavior){
+
+            function scrollMonthIntoView(){
                 const target = sCalPopup.querySelector('.s-cal-month-' + viewportYear + '-' + viewportMonth);
-                target.scrollIntoView({behavior: behavior});
+                target.scrollIntoView({behavior: 'smooth'});
                 blockScrollEvent = true;
             }
 
