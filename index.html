@@ -361,20 +361,34 @@
             const monthSelector = sCalPopup.querySelector('.s-cal-month-index');
             monthSelector.addEventListener('change', function() {
                 viewportMonth = this.value;
-                scrollMonthIntoView('instant');
+                scrollMonthIntoView('smooth');
             });
 
             const monthPrev = sCalPopup.querySelector('.s-cal-month-prev');
             monthPrev.addEventListener('click', function() {
-                viewportMonth = viewportMonth - 1 < 0 ? 11 : viewportMonth - 1;
-                monthSelector.value = viewportMonth;
+                if (viewportMonth - 1 < 0) {
+                    viewportMonth = 11;
+                    viewportYear -= 1;
+                    monthSelector.value = viewportMonth;
+                    yearSelector.value = viewportYear;
+                } else {
+                    viewportMonth -= 1;
+                    monthSelector.value = viewportMonth;
+                }
                 scrollMonthIntoView('smooth');
             });
 
             const monthNext = sCalPopup.querySelector('.s-cal-month-next');
             monthNext.addEventListener('click', function() {
-                viewportMonth = viewportMonth + 1 > 11 ? 0 : viewportMonth + 1;
-                monthSelector.value = viewportMonth;
+                if (viewportMonth + 1 > 11) {
+                    viewportMonth = 0;
+                    viewportYear += 1;
+                    monthSelector.value = viewportMonth;
+                    yearSelector.value = viewportYear;
+                } else {
+                    viewportMonth += 1;
+                    monthSelector.value = viewportMonth;
+                }
                 scrollMonthIntoView('smooth');
             });
 
