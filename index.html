@@ -144,7 +144,7 @@
             flex-direction: row;
             overflow: scroll;
             width: 100%;
-            gap: 50%;
+            gap: 5em;
         }
         /* hide scrollbar */
 
@@ -269,8 +269,10 @@
 
         dateInputs.forEach(function(dateInput) {
 
-            var viewportYear = 2020
-            var viewportMonth = 0
+            let isScrolling;
+            let blockScrollEvent = false;
+            let viewportYear = 2020;
+            let viewportMonth = 0;
 
             // If the date input has a date, set dateInput to that value, otherwise set to today's date.
 
@@ -399,7 +401,7 @@
             function scrollMonthIntoView(behavior){
                 const target = sCalPopup.querySelector('.s-cal-month-' + viewportYear + '-' + viewportMonth);
                 target.scrollIntoView({behavior: behavior});
-                // @TODO: Prevent default on the scroll event?
+                blockScrollEvent = true;
             }
 
 
@@ -425,25 +427,48 @@
                 createMonthView(sCalMonthDatesViewport, 2024, i);
             }
 
+            function updateNav(){
+                // Function to update the navigation elements to reflect the current viewport month and year
 
-            // @TODO: Supress this scroll event function when the scroll has been triggered by the scrollMonthIntoView() function
-            sCalMonthDatesViewport.addEventListener('scroll', function() {
+                const vwLeft = sCalMonthDatesViewport.getBoundingClientRect().left
+                const vwRight = sCalMonthDatesViewport.getBoundingClientRect().right
+                
                 // Get all the possible months
                 const monthInView = sCalMonthDatesViewport.querySelectorAll('.s-cal-month');
                 
                 // Programatically check each month to see if it is currently visible in the viewport
                 monthInView.forEach(function(month) {
 
+                    const monthMid = month.getBoundingClientRect().left + (month.getBoundingClientRect().width / 2);
+
                     // @TODO: This is a very basic check, we should check if the month is at least 50% visible
-                    if (month.getBoundingClientRect().left >= 0 && month.getBoundingClientRect().right <= window.innerWidth) {
+                    if (monthMid > vwLeft && monthMid < vwRight) {
                         // If the month is visible, set the month selector to that month
                         viewportMonth = parseInt(month.classList[1].split('-')[4]);
                         viewportYear = parseInt(month.classList[1].split('-')[3]);
                         monthSelector.value = viewportMonth;
                         yearSelector.value = viewportYear;
+                        console.log(viewportMonth + '/' + viewportYear)
                     }
                 });
-                
+
+            }
+
+
+            // @TODO: Supress this scroll event function when the scroll has been triggered by the scrollMonthIntoView() function
+            sCalMonthDatesViewport.addEventListener('scroll', function() {
+
+                // Debounce the scroll event to detect when scrolling has ended
+                clearTimeout(isScrolling);
+                isScrolling = setTimeout(function () {
+                    blockScrollEvent = false;
+                    updateNav();
+                }, 100);
+
+                if (blockScrollEvent) {
+                    return;
+                }
+                updateNav();
             });
 
 
