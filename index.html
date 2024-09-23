@@ -412,6 +412,7 @@
                 scrollMonthIntoView('instant');
             });
 
+            
             function scrollMonthIntoView(behavior){
                 const target = sCalPopup.querySelector('.s-cal-month-' + viewportYear + '-' + viewportMonth);
                 target.scrollIntoView({behavior: behavior});
@@ -441,6 +442,7 @@
                 createMonthView(sCalMonthDatesViewport, 2024, i);
             }
 
+
             function updateNav(){
                 // Function to update the navigation elements to reflect the current viewport month and year
 
@@ -455,9 +457,8 @@
 
                     const monthMid = month.getBoundingClientRect().left + (month.getBoundingClientRect().width / 2);
 
-                    // @TODO: This is a very basic check, we should check if the month is at least 50% visible
                     if (monthMid > vwLeft && monthMid < vwRight) {
-                        // If the month is visible, set the month selector to that month
+                        // If the month is in view, update the monthSelector and yearSelector to reflect the month and year
                         viewportMonth = parseInt(month.classList[1].split('-')[4]);
                         viewportYear = parseInt(month.classList[1].split('-')[3]);
                         monthSelector.value = viewportMonth;
@@ -469,7 +470,6 @@
             }
 
 
-            // @TODO: Supress this scroll event function when the scroll has been triggered by the scrollMonthIntoView() function
             sCalMonthDatesViewport.addEventListener('scroll', function() {
 
                 // Debounce the scroll event to detect when scrolling has ended
@@ -484,7 +484,6 @@
                 }
                 updateNav();
             });
-
 
 
             dateInput.addEventListener('click', function() {
