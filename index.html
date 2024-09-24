@@ -14,6 +14,7 @@
             margin: 0;
             padding: 0;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -22,8 +23,13 @@
     </style>
 </head>
 <body>
-    <div class="s-cal-input" data-date-value="2024-08-11">
-        08/11/24
-    </div>
+    <input id="demoDatePicker" type="date" value="2024-08-11">
 </body>
+<script>
+    const demoDatePicker = document.getElementById('demoDatePicker');
+    initSCal(demoDatePicker, {
+        min: new Date(new Date().getFullYear() - 5, new Date().getMonth(), new Date().getDate()),
+        max: new Date()
+    });
+</script>
 </html>
