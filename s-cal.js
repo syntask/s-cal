@@ -1,4 +1,4 @@
-function createMonthView(parent, year, month){
+function createMonthView(parent, inputElement, year, month){
     
     // Accepts a year (e.g. 2023) and month 0-11 (zero based)
     
@@ -57,9 +57,11 @@ function createMonthView(parent, year, month){
     // Add the HTML for each of the dates we want to show in this view
     alldays.forEach(function(dayIndex) {
 
+        const dateString = dayIndex.date.getFullYear() + '-' + dayIndex.date.getMonth() + '-' + dayIndex.date.getDate();
+
         // Construct the date object/button
         innerHtml += `
-            <div class="s-cal-date s-cal-date-${dayIndex.type}" data-date-value="${dayIndex.date}">
+            <div class="s-cal-date s-cal-date-${dayIndex.type} s-cal-date-${dateString}" data-date-value="${dateString}">
                 <div class="s-cal-date-inner">
                     <div class="s-cal-date-top">
                     </div>
@@ -84,6 +86,32 @@ function createMonthView(parent, year, month){
     // Append the monthView element to the parent element
     parent.appendChild(monthView);
 
+
+
+    // Add an event listener to each of the date elements
+    const dateElements = monthView.querySelectorAll('.s-cal-date.s-cal-date-primary');
+
+    dateElements.forEach(function(dateElement) {
+        dateElement.addEventListener('click', function() {
+
+            // Add the s-cal-date-active class to the selected date
+            document.querySelectorAll('.s-cal-date').forEach(function(dateElement) {
+                dateElement.classList.remove('s-cal-date-active');
+            });
+
+            this.classList.add('s-cal-date-active');
+
+            // Get the date value but pad the month and day with a zero if they are less than 10
+            // Also convert the month from 0-11 to 1-12
+            const dateValue = this.dataset.dateValue.split('-');
+            const monthValue = dateValue[1].length === 1 ? '0' + (parseInt(dateValue[1]) + 1) : (parseInt(dateValue[1]) + 1);
+            const dayValue = dateValue[2].length === 1 ? '0' + dateValue[2] : dateValue[2];
+
+            // Set the value of the inputElement to the selected date
+            inputElement.value = dateValue[0] + '-' + monthValue + '-' + dayValue;
+        });
+    });
+
 }
 
 
@@ -99,8 +127,6 @@ function initSCal(inputElement, options) {
     } else {
         dateSelected = inputElement.value ? new Date(inputElement.value) : new Date();
     }
-
-    console.log(dateSelected);
 
     let isScrolling;
     let blockScrollEvent = false;
@@ -183,6 +209,7 @@ function initSCal(inputElement, options) {
         </div>
     `;
 
+    // @TODO: Disable navigation buttons when the min and max dates are reached
     const monthSelector = sCalPopup.querySelector('.s-cal-month-index');
     monthSelector.addEventListener('change', function() {
         viewportMonth = this.value;
@@ -262,12 +289,17 @@ function initSCal(inputElement, options) {
             if (y === maxYear && m > maxMonth) {
                 continue;
             }
-            createMonthView(sCalMonthDatesViewport, y, m);
+            createMonthView(sCalMonthDatesViewport, inputElement, y, m);
         }
     }
 
     // Scroll to the current month
     scrollMonthIntoView();
+
+    // Add the s-date-active class to the dateSelected
+    const dateSelectedElement = sCalPopup.querySelector('.s-cal-date-primary.s-cal-date-' + dateSelected.getFullYear() + '-' + dateSelected.getMonth() + '-' + dateSelected.getDate());
+    dateSelectedElement.classList.add('s-cal-date-active');
+
 
 
     function updateNav(){
@@ -290,7 +322,6 @@ function initSCal(inputElement, options) {
                 viewportYear = parseInt(month.classList[1].split('-')[3]);
                 monthSelector.value = viewportMonth;
                 yearSelector.value = viewportYear;
-                console.log(viewportMonth + '/' + viewportYear)
             }
         });
 
@@ -314,8 +345,8 @@ function initSCal(inputElement, options) {
 
 
     inputElement.addEventListener('click', function() {
-        // @TODO: Open the popup when the date input element is clicked
-
+        // Open the popup when the date input element is clicked
+        sCalPopup.classList.add('s-cal-popup-open');
         // Prevent the default event from firing
         event.preventDefault();
         // Stop the event from bubbling up the DOM tree
@@ -323,4 +354,11 @@ function initSCal(inputElement, options) {
         // Blur the input element
         inputElement.blur();
     });
+
+    // Close the popup when the user clicks outside of the popup
+    document.addEventListener('click', function(event) {
+        if (!sCalPopup.contains(event.target) && !inputElement.contains(event.target)) {
+            sCalPopup.classList.remove('s-cal-popup-open');
+        }
+    });    
 }

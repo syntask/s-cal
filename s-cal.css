@@ -8,6 +8,10 @@
     margin: 0 auto;
     border-radius: .5em;
     cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    appearance: none;
+    outline: none;
 }
 
 .s-cal-popup {
@@ -24,6 +28,17 @@
     cursor: default;
     user-select: none;
     -webkit-user-select: none;
+
+    /* Hidden by default */
+    opacity: 0;
+    transform: scale(0.95);
+    transition: transform .25s cubic-bezier(.09, .5, .5, 1.4), opacity .25s ease;
+}
+
+
+.s-cal-popup.s-cal-popup-open {
+    transform: scale(1);
+    opacity: 1;
 }
 
 .s-cal-nav-wrapper {
@@ -118,6 +133,10 @@
 
 .s-cal-date.s-cal-date-primary:hover{
     background-color: rgba(190, 190, 190, 0.282);
+}
+
+.s-cal-date.s-cal-date-primary.s-cal-date-active{
+    background-color: rgb(15, 141, 225);
 }
 
 .s-cal-month-viewport{
