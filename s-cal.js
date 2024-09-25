@@ -121,7 +121,7 @@ function createMonthView(parent, popup, options, inputElement, year, month){
 
 
 
-function initSCal(inputElement, options) {
+async function initSCal(inputElement, options) {
 
     // Add the readonly attribute to the inputElement
     inputElement.setAttribute('readonly', 'readonly');
