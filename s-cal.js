@@ -1,4 +1,4 @@
-function createMonthView(parent, inputElement, year, month){
+function createMonthView(parent, popup, options, inputElement, year, month){
     
     // Accepts a year (e.g. 2023) and month 0-11 (zero based)
     
@@ -109,6 +109,11 @@ function createMonthView(parent, inputElement, year, month){
 
             // Set the value of the inputElement to the selected date
             inputElement.value = dateValue[0] + '-' + monthValue + '-' + dayValue;
+
+            // Close the popup
+            if (options.persistant !== true) {
+                popup.classList.remove('s-cal-popup-open');
+            }
         });
     });
 
@@ -296,7 +301,7 @@ function initSCal(inputElement, options) {
             if (y === maxYear && m > maxMonth) {
                 continue;
             }
-            createMonthView(sCalMonthDatesViewport, inputElement, y, m);
+            createMonthView(sCalMonthDatesViewport, sCalPopup, options, inputElement, y, m);
         }
     }
 
