@@ -22,7 +22,9 @@ function createMonthView(parent, popup, options, inputElement, year, month){
         daysBefore.push({
             date: new Date(year, month, 0 - i),
             day: prevLastDate - i,
-            type: 'prev'
+            type: 'prev',
+            // If the date is before options.min, add a value of 'disabled' to the key 'enabled'
+            enabled: new Date(year, month, 0 - i) >= options.min
         });
     }
     daysBefore.reverse();
@@ -33,7 +35,9 @@ function createMonthView(parent, popup, options, inputElement, year, month){
         days.push({
             date: new Date(year, month, i),
             day: i,
-            type: 'primary'
+            type: 'primary',
+            // If the date is before options.min or after options.max, add a value of 'disabled' to the key 'enabled'
+            enabled: new Date(year, month, i) >= options.min && new Date(year, month, i) <= options.max
         });
     }
 
@@ -44,7 +48,9 @@ function createMonthView(parent, popup, options, inputElement, year, month){
         daysAfter.push({
             date: new Date(year, month + 1, i),
             day: i,
-            type: 'next'
+            type: 'next',
+            // If the date is after options.max, add a value of 'disabled' to the key 'enabled'
+            enabled: new Date(year, month + 1, i) <= options.max
         });
     }
 
@@ -59,9 +65,15 @@ function createMonthView(parent, popup, options, inputElement, year, month){
 
         const dateString = dayIndex.date.getFullYear() + '-' + dayIndex.date.getMonth() + '-' + dayIndex.date.getDate();
 
+        if (dayIndex.enabled === false) {
+            dayIndex.enabled = 'disabled';
+        } else {
+            dayIndex.enabled = 'enabled';
+        }
+
         // Construct the date object/button
         innerHtml += `
-            <div class="s-cal-date s-cal-date-${dayIndex.type} s-cal-date-${dateString}" data-date-value="${dateString}">
+            <div class="s-cal-date s-cal-date-${dayIndex.type} s-cal-date-${dateString} s-cal-date-${dayIndex.enabled}" data-date-value="${dateString}">
                 <div class="s-cal-date-inner">
                     <div class="s-cal-date-top">
                     </div>
@@ -89,7 +101,7 @@ function createMonthView(parent, popup, options, inputElement, year, month){
 
 
     // Add an event listener to each of the date elements
-    const dateElements = monthView.querySelectorAll('.s-cal-date.s-cal-date-primary');
+    const dateElements = monthView.querySelectorAll('.s-cal-date.s-cal-date-primary.s-cal-date-enabled');
 
     dateElements.forEach(function(dateElement) {
         dateElement.addEventListener('click', function() {

@@ -79,13 +79,17 @@
     align-items: center;
 }
 
+.s-cal-date-disabled {
+    opacity: .5;
+}
+
 .s-cal-date.s-cal-date-primary{
     cursor: pointer;
     transition: background-color .1s;
 }
 
 .s-cal-date-prev .s-cal-date-label, .s-cal-date-next .s-cal-date-label {
-    opacity: .1;
+    opacity: .05;
 }
 
 .s-cal-select {
