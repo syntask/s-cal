@@ -118,20 +118,27 @@ function createMonthView(parent, inputElement, year, month){
 
 function initSCal(inputElement, options) {
 
+    // Add the readonly attribute to the inputElement
+    inputElement.setAttribute('readonly', 'readonly');
+
     // Check if the inputElement has a valid value by checking if it fits the format YYYY-MM-DD
 
-    let dateSelected;
+    if (!options.min){
+        options.min = new Date(new Date().getFullYear() - 5, new Date().getMonth(), new Date().getDate());
+    }
 
-    if (options.date) {
-        dateSelected = new Date(options.date);
-    } else {
-        dateSelected = inputElement.value ? new Date(inputElement.value) : new Date();
+    if (!options.max){
+        options.min = new Date(new Date().getFullYear() + 5, new Date().getMonth(), new Date().getDate());
+    }
+
+    if (!options.value){
+        options.value = new Date();
     }
 
     let isScrolling;
     let blockScrollEvent = false;
-    let viewportYear = dateSelected.getFullYear();
-    let viewportMonth = dateSelected.getMonth();
+    let viewportYear = options.value.getFullYear();
+    let viewportMonth = options.value.getMonth();
 
     inputElement.classList.add('s-cal-input');
 
@@ -296,9 +303,8 @@ function initSCal(inputElement, options) {
     // Scroll to the current month
     scrollMonthIntoView();
 
-    // Add the s-date-active class to the dateSelected
-    const dateSelectedElement = sCalPopup.querySelector('.s-cal-date-primary.s-cal-date-' + dateSelected.getFullYear() + '-' + dateSelected.getMonth() + '-' + dateSelected.getDate());
-    dateSelectedElement.classList.add('s-cal-date-active');
+    // On load, set the active date to the initial value of the inputElement
+    sCalPopup.querySelector('.s-cal-date-primary.s-cal-date-' + options.value.getFullYear() + '-' + options.value.getMonth() + '-' + options.value.getDate()).classList.add('s-cal-date-active');
 
 
 
@@ -347,12 +353,6 @@ function initSCal(inputElement, options) {
     inputElement.addEventListener('click', function() {
         // Open the popup when the date input element is clicked
         sCalPopup.classList.add('s-cal-popup-open');
-        // Prevent the default event from firing
-        event.preventDefault();
-        // Stop the event from bubbling up the DOM tree
-        event.stopPropagation();
-        // Blur the input element
-        inputElement.blur();
     });
 
     // Close the popup when the user clicks outside of the popup

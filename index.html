@@ -23,13 +23,15 @@
     </style>
 </head>
 <body>
-    <input id="demoDatePicker" type="date" value="2024-08-11">
+    <input id="demoDatePicker" type="text">
 </body>
 <script>
     const demoDatePicker = document.getElementById('demoDatePicker');
     initSCal(demoDatePicker, {
+        value: new Date(),
         min: new Date(new Date().getFullYear() - 5, new Date().getMonth(), new Date().getDate()),
-        max: new Date()
+        max: new Date(),
+        format: 'dd/mm/yyyy',
     });
 </script>
 </html>
