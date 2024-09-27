@@ -1,3 +1,37 @@
+function formatDate(date, format) {
+    // Argument 1 is "date" which is a Date object
+    // Argument 2 is "format" which is a string defining the desired format using placeholders e.g. mm/dd/yyyy or dd-mm-yyyy
+    // Returns a string with the date formatted as requested
+
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    let dateStr = format;
+    const replacements = {
+        'dd': day < 10 ? '0' + day : day,
+        'd': day,
+        'mmmm': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][month - 1],
+        'mmm': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][month - 1],
+        'mm': month < 10 ? '0' + month : month,
+        'm': month,
+        'yyyy': year,
+        'yy': year.toString().slice(-2),
+        'y': year
+    };
+
+    for (const [key, value] of Object.entries(replacements)) {
+        dateStr = dateStr.replace(new RegExp(`\\b${key}\\b`, 'g'), value);
+    }
+
+    return dateStr;
+}
+
+function updateInputElement(targetElement, date, format) {
+    const dateStr = formatDate(date, format)
+    targetElement.value = dateStr;
+}
+
 function createMonthView(parent, popup, options, inputElement, year, month){
     
     // Accepts a year (e.g. 2023) and month 0-11 (zero based)
@@ -120,7 +154,8 @@ function createMonthView(parent, popup, options, inputElement, year, month){
             const dayValue = dateValue[2].length === 1 ? '0' + dateValue[2] : dateValue[2];
 
             // Set the value of the inputElement to the selected date
-            inputElement.value = dateValue[0] + '-' + monthValue + '-' + dayValue;
+            const selectedDate = new Date(dateValue[0], dateValue[1], dateValue[2]);
+            updateInputElement(inputElement, selectedDate, options.format);
 
             // Close the popup
             if (options.persistant !== true) {
@@ -150,6 +185,10 @@ async function initSCal(inputElement, options) {
 
     if (!options.value){
         options.value = new Date();
+    }
+
+    if (!options.format){
+        options.format = 'mm/dd/yyyy';
     }
 
     let isScrolling;
@@ -322,7 +361,6 @@ async function initSCal(inputElement, options) {
 
     // On load, set the active date to the initial value of the inputElement
     sCalPopup.querySelector('.s-cal-date-primary.s-cal-date-' + options.value.getFullYear() + '-' + options.value.getMonth() + '-' + options.value.getDate()).classList.add('s-cal-date-active');
-
 
 
     function updateNav(){
