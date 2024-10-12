@@ -91,6 +91,11 @@ div.s-cal-nav-button {
     cursor: pointer;
 }
 
+div.s-cal-nav-button.disabled {
+    opacity: .33;
+    cursor: default;
+}
+
 /* Basic calendar layout */
 
 .s-cal-weekdays-wrapper {

@@ -274,13 +274,25 @@ async function initSCal(inputElement, options) {
 
     // @TODO: Disable navigation buttons when the min and max dates are reached
     const monthSelector = sCalPopup.querySelector('.s-cal-month-index');
+
     monthSelector.addEventListener('change', function() {
+        // Prevent selections of outside of the min and max dates by deferring to the min and max dates
+        if (viewportYear === options.min.getFullYear() && this.value < options.min.getMonth()) {
+            viewportMonth = options.min.getMonth();
+            monthSelector.value = viewportMonth;
+        } else if (viewportYear === options.max.getFullYear() && this.value > options.max.getMonth()) {
+            viewportMonth = options.max.getMonth();
+            monthSelector.value = viewportMonth;
+        }
         viewportMonth = this.value;
         scrollMonthIntoView();
     });
 
     const monthPrev = sCalPopup.querySelector('.s-cal-month-prev');
     monthPrev.addEventListener('click', function() {
+        if (this.classList.contains('disabled')) {
+            return; // If the button is disabled, do nothing
+        }
         if (viewportMonth - 1 < 0) {
             viewportMonth = 11;
             viewportYear -= 1;
@@ -295,6 +307,9 @@ async function initSCal(inputElement, options) {
 
     const monthNext = sCalPopup.querySelector('.s-cal-month-next');
     monthNext.addEventListener('click', function() {
+        if (this.classList.contains('disabled')) {
+            return; // If the button is disabled, do nothing
+        }
         if (viewportMonth + 1 > 11) {
             viewportMonth = 0;
             viewportYear += 1;
@@ -309,12 +324,29 @@ async function initSCal(inputElement, options) {
 
     const yearSelector = sCalPopup.querySelector('.s-cal-year-index')
     yearSelector.addEventListener('change', function() {
+
+        // Prevent selections of outside of the min and max dates by deferring to the min and max dates
+        if (this.value <= options.min.getFullYear() && viewportMonth < options.min.getMonth()) {
+            viewportYear = options.min.getFullYear();
+            viewportMonth = options.min.getMonth();
+            monthSelector.value = viewportMonth;
+            yearSelector.value = viewportYear;
+        } else if (this.value >= options.max.getFullYear() && viewportMonth > options.max.getMonth()) {
+            viewportYear = options.max.getFullYear();
+            viewportMonth = options.max.getMonth();
+            monthSelector.value = viewportMonth;
+            yearSelector.value = viewportYear;
+        }
+
         viewportYear = this.value;
         scrollMonthIntoView();
     });
 
     const yearPrev = sCalPopup.querySelector('.s-cal-year-prev');
     yearPrev.addEventListener('click', function() {
+        if (this.classList.contains('disabled')) {
+            return; // If the button is disabled, do nothing
+        }
         viewportYear = viewportYear - 1;
         yearSelector.value = viewportYear;
         scrollMonthIntoView();
@@ -322,6 +354,9 @@ async function initSCal(inputElement, options) {
 
     const yearNext = sCalPopup.querySelector('.s-cal-year-next');
     yearNext.addEventListener('click', function() {
+        if (this.classList.contains('disabled')) {
+            return; // If the button is disabled, do nothing
+        }
         viewportYear = viewportYear + 1;
         yearSelector.value = viewportYear;
         scrollMonthIntoView();
@@ -332,6 +367,27 @@ async function initSCal(inputElement, options) {
         const target = sCalPopup.querySelector('.s-cal-month-' + viewportYear + '-' + viewportMonth);
         target.scrollIntoView({behavior: 'smooth'});
         blockScrollEvent = true;
+
+        // Call updateNavButtonStates function here, even though it will also be called by the scroll event listener, so that the navigation buttons are updated immediately
+        updateNavButtonStates();
+    }
+
+    function updateNavButtonStates() {
+        if (viewportYear <= options.min.getFullYear() && viewportMonth <= options.min.getMonth()) {
+            monthPrev.classList.add('disabled');
+            yearPrev.classList.add('disabled');
+        } else {
+            monthPrev.classList.remove('disabled');
+            yearPrev.classList.remove('disabled');
+        }
+
+        if (viewportYear >= options.max.getFullYear() && viewportMonth >= options.max.getMonth()) {
+            monthNext.classList.add('disabled');
+            yearNext.classList.add('disabled');
+        } else {
+            monthNext.classList.remove('disabled');
+            yearNext.classList.remove('disabled');
+        }
     }
 
 
@@ -365,6 +421,9 @@ async function initSCal(inputElement, options) {
 
     function updateNav(){
         // Function to update the navigation elements to reflect the current viewport month and year
+
+        // Disable the navigation buttons if the min or max dates are reached
+        updateNavButtonStates();
 
         const vwLeft = sCalMonthDatesViewport.getBoundingClientRect().left
         const vwRight = sCalMonthDatesViewport.getBoundingClientRect().right
