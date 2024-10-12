@@ -157,6 +157,13 @@ function createMonthView(parent, popup, options, inputElement, year, month){
             const selectedDate = new Date(dateValue[0], dateValue[1], dateValue[2]);
             updateInputElement(inputElement, selectedDate, options.format);
 
+            // Dispatch a change event on the inputElement
+            const changeEvent = new Event('change', {
+                bubbles: true,
+                cancelable: true,
+            });
+            inputElement.dispatchEvent(changeEvent);
+
             // Close the popup
             if (options.persistant !== true) {
                 popup.classList.remove('s-cal-popup-open');
