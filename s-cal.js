@@ -1,3 +1,5 @@
+//Version: 1.0.0
+
 function formatDate(date, format) {
     // Argument 1 is "date" which is a Date object
     // Argument 2 is "format" which is a string defining the desired format using placeholders e.g. mm/dd/yyyy or dd-mm-yyyy
