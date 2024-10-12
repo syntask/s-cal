@@ -276,13 +276,11 @@ async function initSCal(inputElement, options) {
     const monthSelector = sCalPopup.querySelector('.s-cal-month-index');
 
     monthSelector.addEventListener('change', function() {
-        // Prevent selections of outside of the min and max dates by deferring to the min and max dates
+        // If the selected month is outside of the min and max dates, go to the nearest available year that will allow the selected month
         if (viewportYear === options.min.getFullYear() && this.value < options.min.getMonth()) {
-            viewportMonth = options.min.getMonth();
-            monthSelector.value = viewportMonth;
+            viewportYear = options.min.getFullYear() + 1;
         } else if (viewportYear === options.max.getFullYear() && this.value > options.max.getMonth()) {
-            viewportMonth = options.max.getMonth();
-            monthSelector.value = viewportMonth;
+            viewportYear = options.max.getFullYear() - 1;
         }
         viewportMonth = this.value;
         scrollMonthIntoView();
@@ -325,7 +323,7 @@ async function initSCal(inputElement, options) {
     const yearSelector = sCalPopup.querySelector('.s-cal-year-index')
     yearSelector.addEventListener('change', function() {
 
-        // Prevent selections of outside of the min and max dates by deferring to the min and max dates
+        // If the selected year places the target outside of the min and max dates, go to the nearest available month that will allow the selected year
         if (this.value <= options.min.getFullYear() && viewportMonth < options.min.getMonth()) {
             viewportYear = options.min.getFullYear();
             viewportMonth = options.min.getMonth();
