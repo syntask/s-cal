@@ -1,3 +1,5 @@
+/* Version: 1.1.0 */
+
 :root {
     --s-cal-background: #fafafa;
     --s-cal-foreground: #333;
@@ -199,5 +201,9 @@ div.s-cal-nav-button.disabled {
 }
 
 .s-cal-date-prev .s-cal-dot, .s-cal-date-next .s-cal-dot {
+    display: none;
+}
+
+.s-cal-date-disabled .s-cal-dot {
     display: none;
 }

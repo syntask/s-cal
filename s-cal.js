@@ -1,4 +1,4 @@
-//Version: 1.0.0
+// Version: 1.1.0
 
 function formatDate(date, format) {
     // Argument 1 is "date" which is a Date object
@@ -119,9 +119,9 @@ function createMonthView(parent, popup, options, inputElement, year, month){
                         </div>
                     </div>
                     <div class="s-cal-date-bottom">
-                        <div class="s-cal-dot hail"></div>
-                        <div class="s-cal-dot wind"></div>
-                        <div class="s-cal-dot torn"></div>
+                        <div class="s-cal-dot one"></div>
+                        <div class="s-cal-dot two"></div>
+                        <div class="s-cal-dot three"></div>
                     </div>
                 </div>
             </div>
@@ -166,6 +166,15 @@ function createMonthView(parent, popup, options, inputElement, year, month){
             });
             inputElement.dispatchEvent(changeEvent);
 
+            // Run the onChange function if it is defined
+            if (options.onChangeFunction) {
+                eval(options.onChangeFunction + `({
+                    year: ${dateValue[0]},
+                    month: ${dateValue[1]},
+                    day: ${dateValue[2]},
+                    });`);
+            }
+
             // Close the popup
             if (options.persistant !== true) {
                 popup.classList.remove('s-cal-popup-open');
@@ -198,6 +207,19 @@ async function initSCal(inputElement, options) {
 
     if (!options.format){
         options.format = 'mm/dd/yyyy';
+    }
+
+    if (!options.showDots){
+        options.showDots = false;
+    }
+
+    if (options.showDots){
+        // Change the CSS so that s-cal-dot elements are visible
+        document.head.insertAdjacentHTML('beforeend', `<style>
+            .s-cal-dot {
+                display: block;
+            }
+        </style>`);
     }
 
     let isScrolling;
@@ -369,6 +391,25 @@ async function initSCal(inputElement, options) {
         scrollMonthIntoView();
     });
 
+    let currentMonthInView;
+
+    function runViewChangeFunction(monthInView){
+        if (options.onViewChangeFunction) {
+            eval(options.onViewChangeFunction + `({
+                currentMonthInView: monthInView,
+                });`);
+        }
+    }
+
+    function refreshMonthInView(){
+        // Function to refresh the monthInView variable
+        newCurrentMonthInView = sCalPopup.querySelector('.s-cal-month-' + viewportYear + '-' + viewportMonth);
+        if (newCurrentMonthInView !== currentMonthInView) {
+            currentMonthInView = newCurrentMonthInView;
+            runViewChangeFunction(currentMonthInView);
+        }
+    }
+
 
     function scrollMonthIntoView(){
         const target = sCalPopup.querySelector('.s-cal-month-' + viewportYear + '-' + viewportMonth);
@@ -382,17 +423,25 @@ async function initSCal(inputElement, options) {
     function updateNavButtonStates() {
         if (viewportYear <= options.min.getFullYear() && viewportMonth <= options.min.getMonth()) {
             monthPrev.classList.add('disabled');
-            yearPrev.classList.add('disabled');
         } else {
             monthPrev.classList.remove('disabled');
-            yearPrev.classList.remove('disabled');
         }
 
         if (viewportYear >= options.max.getFullYear() && viewportMonth >= options.max.getMonth()) {
             monthNext.classList.add('disabled');
-            yearNext.classList.add('disabled');
         } else {
             monthNext.classList.remove('disabled');
+        }
+
+        if (viewportYear <= options.min.getFullYear()) {
+            yearPrev.classList.add('disabled');
+        } else {
+            yearPrev.classList.remove('disabled');
+        }
+
+        if (viewportYear >= options.max.getFullYear()) {
+            yearNext.classList.add('disabled');
+        } else {
             yearNext.classList.remove('disabled');
         }
     }
@@ -456,6 +505,7 @@ async function initSCal(inputElement, options) {
 
 
     sCalMonthDatesViewport.addEventListener('scroll', function() {
+        refreshMonthInView();
 
         // Debounce the scroll event to detect when scrolling has ended
         clearTimeout(isScrolling);

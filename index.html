@@ -32,7 +32,44 @@
         min: new Date(new Date().getFullYear() - 5, new Date().getMonth(), new Date().getDate()),
         max: new Date(),
         format: 'mm/dd/yy',
-        persistant: true
+        persistant: false,
+        showDots: true,
+        onChangeFunction: "demoOnChangeFunction",
+        onViewChangeFunction: "demoOnViewChangeFunction",
     });
+
+    function demoOnChangeFunction(data) {
+        console.log('Date changed to: ' + data.year + '-' + data.month + '-' + data.day);
+    }
+
+    function demoOnViewChangeFunction(data) {
+        const monthNode = data.currentMonthInView;
+        const dateNodes = monthNode.querySelectorAll('.s-cal-date-primary.s-cal-date-enabled');
+
+        // Reset the colors
+        document.querySelectorAll('.s-cal-dot').forEach(dot => {
+            dot.style.backgroundColor = '';
+        });
+
+
+        dateNodes.forEach(dateNode => {
+            const dateValue = dateNode.getAttribute('data-date-value');
+            const dateNodeInner = dateNode.querySelector('.s-cal-date-inner');
+            const dateNodeBottom = dateNodeInner.querySelector('.s-cal-date-bottom');
+            const dotOne = dateNodeBottom.querySelector('.s-cal-dot.one');
+            const dotTwo = dateNodeBottom.querySelector('.s-cal-dot.two');
+            const dotThree = dateNodeBottom.querySelector('.s-cal-dot.three');
+
+
+            const randomColor1 = Math.floor(Math.random()*16777215).toString(16);
+            const randomColor2 = Math.floor(Math.random()*16777215).toString(16);
+            const randomColor3 = Math.floor(Math.random()*16777215).toString(16);
+
+            dotOne.style.backgroundColor = '#' + randomColor1;
+            dotTwo.style.backgroundColor = '#' + randomColor2;
+            dotThree.style.backgroundColor = '#' + randomColor3;
+
+        });
+    }
 </script>
 </html>
